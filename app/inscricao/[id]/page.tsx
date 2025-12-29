@@ -63,7 +63,7 @@ export default function InscricaoPublicaPage({ params }: { params: { id: string 
 
       while (diaAtual <= fim) {
         // Converte para YYYY-MM-DD no fuso UTC
-        const ano = diaAtual.getUTCFullYear();
+        const ano = diaAtual.getUTCFullFullYear();
         const mes = String(diaAtual.getUTCMonth() + 1).padStart(2, '0');
         const dia = String(diaAtual.getUTCDate()).padStart(2, '0');
         dias.push(`${ano}-${mes}-${dia}`);
@@ -118,22 +118,24 @@ export default function InscricaoPublicaPage({ params }: { params: { id: string 
       return
     }
 
-    if (!validateCPF(formData.cpf)) {
-      setError('CPF inválido')
-      return
-    }
+    // CPF — ❌ Filtro original → agora comentado
+    // if (!validateCPF(formData.cpf)) {
+    //   setError('CPF inválido')
+    //   return
+    // }
 
     if (formData.categoria === 'pcd' && !formData.tipo_deficiencia) {
       setError('Informe o tipo de deficiência')
       return
     }
 
-    if (evento?.permite_acompanhante && formData.nome_acompanhante && formData.cpf_acompanhante) {
-      if (!validateCPF(formData.cpf_acompanhante)) {
-        setError('CPF do acompanhante inválido')
-        return
-      }
-    }
+    // Validação CPF acompanhante — ❌ comentada
+    // if (evento?.permite_acompanhante && formData.nome_acompanhante && formData.cpf_acompanhante) {
+    //   if (!validateCPF(formData.cpf_acompanhante)) {
+    //     setError('CPF do acompanhante inválido')
+    //     return
+    //   }
+    // }
 
     setSubmitting(true)
 
@@ -144,7 +146,7 @@ export default function InscricaoPublicaPage({ params }: { params: { id: string 
           evento_id: params.id,
           datas_eventos: diasSelecionados,
           nome_completo: formData.nome_completo,
-          cpf: formData.cpf.replace(/\D/g, ''),
+          cpf: formData.cpf.replace(/\D/g, ''), // mantém como antes
           endereco: formData.endereco,
           telefone: formData.telefone,
           categoria: formData.categoria,

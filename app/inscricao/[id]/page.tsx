@@ -118,24 +118,22 @@ export default function InscricaoPublicaPage({ params }: { params: { id: string 
       return
     }
 
-    // CPF — ❌ Filtro original → agora comentado
-    // if (!validateCPF(formData.cpf)) {
-    //   setError('CPF inválido')
-    //   return
-    // }
+    if (!validateCPF(formData.cpf)) {
+      setError('CPF inválido')
+      return
+    }
 
     if (formData.categoria === 'pcd' && !formData.tipo_deficiencia) {
       setError('Informe o tipo de deficiência')
       return
     }
 
-    // Validação CPF acompanhante — ❌ comentada
-    // if (evento?.permite_acompanhante && formData.nome_acompanhante && formData.cpf_acompanhante) {
-    //   if (!validateCPF(formData.cpf_acompanhante)) {
-    //     setError('CPF do acompanhante inválido')
-    //     return
-    //   }
-    // }
+    if (evento?.permite_acompanhante && formData.nome_acompanhante && formData.cpf_acompanhante) {
+      if (!validateCPF(formData.cpf_acompanhante)) {
+        setError('CPF do acompanhante inválido')
+        return
+      }
+    }
 
     setSubmitting(true)
 
@@ -146,7 +144,7 @@ export default function InscricaoPublicaPage({ params }: { params: { id: string 
           evento_id: params.id,
           datas_eventos: diasSelecionados,
           nome_completo: formData.nome_completo,
-          cpf: formData.cpf.replace(/\D/g, ''), // mantém como antes
+          cpf: formData.cpf.replace(/\D/g, ''),
           endereco: formData.endereco,
           telefone: formData.telefone,
           categoria: formData.categoria,
@@ -160,7 +158,7 @@ export default function InscricaoPublicaPage({ params }: { params: { id: string 
 
       if (insertError) throw insertError
 
-      router.push(`/inscricao/${params.id}/confirmacao?protocolo=${data.protocolo}&senha=${data.senha}`)
+      router.push(`/inscricao/${data.id}/confirmacao?protocolo=${data.protocolo}&senha=${data.senha}&eventoId=${params.id}`)
     } catch (error: any) {
       console.error('Erro ao criar inscrição:', error)
       setError(error.message || 'Erro ao realizar inscrição. Tente novamente.')

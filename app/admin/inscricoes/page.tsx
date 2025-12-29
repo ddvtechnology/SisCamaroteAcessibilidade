@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Inscricao, Evento } from '@/types'
 import { formatDate, formatCPF, formatPhone, getStatusColor, getStatusLabel, getCategoriaLabel, getCategoriaColor } from '@/lib/utils'
-import { Users, Search, CheckCircle, XCircle, FileSpreadsheet, FileText } from 'lucide-react'
+import { Users, Search, CheckCircle, XCircle, FileSpreadsheet, FileText, Eye, Edit, Printer } from 'lucide-react'
 import { exportToExcel, exportToPDF } from '@/lib/export'
+import Link from 'next/link'
 
 type InscricaoComEvento = Inscricao & {
   eventos: Evento
@@ -354,17 +355,33 @@ export default function InscricoesPage() {
                 />
                 
                 <div className="flex-1 min-w-0 overflow-hidden w-full max-w-full">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 text-wrap">
-                      {inscricao.nome_completo}
-                    </h3>
-                    <span className={`badge ${getCategoriaColor(inscricao.categoria)} flex-shrink-0`}>
-                      {getCategoriaLabel(inscricao.categoria)}
-                    </span>
-                    <span className={`badge ${getStatusColor(inscricao.status)} flex-shrink-0`}>
-                      {getStatusLabel(inscricao.status)}
-                    </span>
+                  <div className="flex flex-col sm:flex-row justify-between items-start w-full mb-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 text-wrap">
+                        {inscricao.nome_completo}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <span className={`badge ${getCategoriaColor(inscricao.categoria)} flex-shrink-0`}>
+                          {getCategoriaLabel(inscricao.categoria)}
+                        </span>
+                        <span className={`badge ${getStatusColor(inscricao.status)} flex-shrink-0`}>
+                          {getStatusLabel(inscricao.status)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2 sm:mt-0 flex-shrink-0">
+                      <Link href={`/admin/inscricoes/detalhes/${inscricao.id}`} title="Visualizar Detalhes" className="btn btn-sm btn-ghost">
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                      <Link href={`/admin/inscricoes/editar/${inscricao.id}`} title="Editar Inscrição" className="btn btn-sm btn-ghost">
+                        <Edit className="w-4 h-4" />
+                      </Link>
+                      <Link href={`/inscricao/${inscricao.id}/confirmacao`} title="Reimprimir Confirmação" target="_blank" className="btn btn-sm btn-ghost">
+                        <Printer className="w-4 h-4" />
+                      </Link>
+                    </div>
                   </div>
+                  
                   
                   <p className="text-sm text-gray-600 mb-1 text-wrap">
                     <strong>Evento:</strong> {inscricao.eventos.nome}

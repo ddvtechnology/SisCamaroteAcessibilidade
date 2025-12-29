@@ -8,7 +8,7 @@ export default function Footer() {
           </p>
           <p className="mt-2 md:mt-0">
             Sistema desenvolvido por{' '}
-            <span className="font-bold text-gray-800">DDV Technology.</span>
+            <span className="font-bold text-gray-800">DDV Technology</span>
           </p>
         </div>
       </div>

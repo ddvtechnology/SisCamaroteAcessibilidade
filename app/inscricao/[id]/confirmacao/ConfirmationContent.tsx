@@ -29,7 +29,7 @@ export default function ConfirmationContent({ inscricao, evento }: { inscricao: 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
             <p><strong>NOME:</strong></p>
-            <p>{inscricao.nome}</p>
+            <p>{inscricao.nome_completo}</p>
           </div>
           <div>
             <p><strong>CPF:</strong></p>
@@ -40,37 +40,15 @@ export default function ConfirmationContent({ inscricao, evento }: { inscricao: 
             <p>{inscricao.telefone}</p>
           </div>
           <div>
-            <p><strong>EMAIL:</strong></p>
-            <p>{inscricao.email}</p>
-          </div>
-          <div>
             <p><strong>ENDEREÇO:</strong></p>
-            <p>{`${inscricao.endereco}, ${inscricao.numero}`}</p>
+            <p>{inscricao.endereco}</p>
           </div>
-          <div>
-            <p><strong>BAIRRO:</strong></p>
-            <p>{inscricao.bairro}</p>
-          </div>
-          <div>
-            <p><strong>CIDADE/ESTADO:</strong></p>
-            <p>{`${inscricao.cidade}/${inscricao.estado}`}</p>
-          </div>
-          <div>
-            <p><strong>CEP:</strong></p>
-            <p>{inscricao.cep}</p>
-          </div>
-          {inscricao.instituicao && (
-            <div>
-              <p><strong>INSTITUIÇÃO/CONGREGAÇÃO:</strong></p>
-              <p>{inscricao.instituicao}</p>
-            </div>
-          )}
         </div>
 
         <div className="text-center my-6">
           <p className="font-bold text-lg">DATAS DE PARTICIPAÇÃO:</p>
           <div className="flex justify-center gap-4">
-            {inscricao.dias_participacao?.map(dia => (
+            {inscricao.datas_eventos?.map(dia => (
               <p key={dia} className="text-lg">{format(new Date(dia), "dd/MM/yyyy", { locale: ptBR })}</p>
             ))}
           </div>

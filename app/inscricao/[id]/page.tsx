@@ -63,7 +63,7 @@ export default function InscricaoPublicaPage({ params }: { params: { id: string 
 
       while (diaAtual <= fim) {
         // Converte para YYYY-MM-DD no fuso UTC
-        const ano = diaAtual.getUTCFullFullYear();
+        const ano = diaAtual.getUTCFullYear();
         const mes = String(diaAtual.getUTCMonth() + 1).padStart(2, '0');
         const dia = String(diaAtual.getUTCDate()).padStart(2, '0');
         dias.push(`${ano}-${mes}-${dia}`);

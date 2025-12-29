@@ -17,7 +17,7 @@ export function formatPhone(phone: string): string {
 
 export function formatDate(date: string): string {
   const d = new Date(date)
-  return d.toLocaleDateString('pt-BR')
+  return d.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
 }
 
 export function formatDateTime(date: string): string {

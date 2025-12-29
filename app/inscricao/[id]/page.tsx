@@ -52,13 +52,24 @@ export default function InscricaoPublicaPage({ params }: { params: { id: string 
       }
 
       setEvento(data)
-      
+
+      // Timezone-safe date range generation
       const dias = []
-      const inicio = new Date(data.data_inicio)
-      const fim = new Date(data.data_fim)
-      
-      for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
-        dias.push(new Date(d).toISOString().split('T')[0])
+      // Adiciona +00:00 para garantir que a data seja interpretada como UTC, e não local.
+      const inicio = new Date(`${data.data_inicio}T00:00:00`)
+      const fim = new Date(`${data.data_fim}T00:00:00`)
+
+      let diaAtual = new Date(inicio)
+
+      while (diaAtual <= fim) {
+        // Converte para YYYY-MM-DD no fuso UTC
+        const ano = diaAtual.getUTCFullYear();
+        const mes = String(diaAtual.getUTCMonth() + 1).padStart(2, '0');
+        const dia = String(diaAtual.getUTCDate()).padStart(2, '0');
+        dias.push(`${ano}-${mes}-${dia}`);
+        
+        // Adiciona um dia em UTC para evitar problemas com horário de verão
+        diaAtual.setUTCDate(diaAtual.getUTCDate() + 1)
       }
       
       setDiasDisponiveis(dias)

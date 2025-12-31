@@ -263,125 +263,106 @@ export function printListaPresenca(
   inscricoes: InscricaoComEvento[],
   diaSelecionado?: string
 ) {
-  const doc = new jsPDF('l', 'mm', 'a4') // landscape, mm, A4
-  
-  // Margens: 10mm de cada lado = 277mm disponível
-  const marginLeft = 10
-  const marginRight = 10
-  const marginTop = 10
-  const pageWidth = 297
-  const pageHeight = 210
-  const availableWidth = pageWidth - marginLeft - marginRight // 277mm
+  // Cria o PDF em modo paisagem (landscape)
+  const doc = new jsPDF('l', 'mm', 'a4'); 
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 15;
+  const availableWidth = pageWidth - (margin * 2);
 
-  // Cabeçalho com gradiente (simulado)
-  doc.setFillColor(14, 165, 233) // primary-600
-  doc.rect(0, 0, pageWidth, 18, 'F')
-  
-  // Título
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(16)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Lista de Presença', pageWidth / 2, 12, { align: 'center' })
-  
-  doc.setFontSize(12)
-  // Truncar nome do evento se muito longo
-  const nomeEvento = evento.nome.length > 50 ? evento.nome.substring(0, 47) + '...' : evento.nome
-  doc.text(nomeEvento, pageWidth / 2, 18, { align: 'center' })
-  
-  if (diaSelecionado) {
-    doc.setFontSize(10)
-    doc.text(formatDate(diaSelecionado), pageWidth / 2, 24, { align: 'center' })
-  }
+  const dataFormatada = diaSelecionado ? formatDate(diaSelecionado, 'dd/MM/yyyy') : '';
+  const titulo = diaSelecionado 
+    ? `Lista de Presença - ${dataFormatada}` 
+    : 'Lista de Presença';
 
-  // Informações gerais
-  doc.setTextColor(0, 0, 0)
-  doc.setFontSize(9)
-  doc.setFont('helvetica', 'normal')
-  
-  let startY = 30
-  if (diaSelecionado) {
-    startY = 32
-  }
+  // Cabeçalho
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.text(evento.nome, pageWidth / 2, margin, { align: 'center' });
 
-  // Filtrar confirmados
-  let confirmados = inscricoes.filter((i) => i.status === 'confirmado')
-  
-  // Se tem dia selecionado, filtrar por dia
-  if (diaSelecionado) {
-    confirmados = confirmados.filter((i) => i.datas_eventos.includes(diaSelecionado))
-  }
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(14);
+  doc.setTextColor(80);
+  doc.text(titulo, pageWidth / 2, margin + 10, { align: 'center' });
 
-  doc.text(`Total de participantes: ${confirmados.length}`, marginLeft, startY)
-  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, marginLeft, startY + 5)
+  // Filtra as inscrições
+  const confirmados = inscricoes.filter(i => 
+    i.status === 'confirmado' &&
+    (!diaSelecionado || i.datas_eventos.includes(diaSelecionado))
+  ).sort((a, b) => a.nome_completo.localeCompare(b.nome_completo));
+
+  let startY = margin + 25;
 
   if (confirmados.length === 0) {
-    doc.setFontSize(10)
-    doc.text('Nenhuma inscrição confirmada.', marginLeft, startY + 12)
+    doc.setFontSize(12);
+    doc.setTextColor(150);
+    doc.text('Nenhuma inscrição confirmada para esta data.', pageWidth / 2, startY + 10, { align: 'center' });
   } else {
-    // Tabela com espaço para assinatura (formato paisagem)
-    // Ajustar larguras para caber em 277mm (considerando margens de 10mm cada lado)
-    const dados = confirmados.map((inscricao, index) => [
+    // Prepara os dados da tabela
+    const dadosTabela = confirmados.map((insc, index) => [
       String(index + 1),
-      inscricao.nome_completo, // Deixar quebrar naturalmente
-      formatCPF(inscricao.cpf),
-      getCategoriaLabel(inscricao.categoria),
-      inscricao.protocolo,
-      inscricao.nome_acompanhante || '-',
-      '', // Coluna de assinatura (vazia)
-    ])
+      insc.nome_completo.toUpperCase(),
+      insc.protocolo,
+      insc.nome_acompanhante || '-',
+      '', // Espaço para assinatura
+    ]);
 
+    // Cria a tabela
     autoTable(doc, {
-      head: [['#', 'Nome', 'CPF', 'Categoria', 'Protocolo', 'Acompanhante', 'Assinatura']],
-      body: dados,
-      startY: startY + 10,
-      margin: { left: marginLeft, right: marginRight },
-      styles: { 
-        fontSize: 7.5, 
-        cellPadding: 1,
-        overflow: 'linebreak',
-        cellWidth: 'auto'
-      },
-      headStyles: { 
-        fillColor: [14, 165, 233],
-        fontSize: 7.5,
+      head: [['#', 'Nome Completo', 'Protocolo', 'Acompanhante', 'Assinatura']],
+      body: dadosTabela,
+      startY: startY,
+      margin: { left: margin, right: margin },
+      theme: 'grid',
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
         fontStyle: 'bold',
-        textColor: [255, 255, 255]
+        halign: 'center',
+      },
+      styles: {
+        font: 'helvetica',
+        fontSize: 9,
+        cellPadding: 2.5,
+        overflow: 'linebreak',
       },
       columnStyles: {
         0: { cellWidth: 10, halign: 'center' }, // #
-        1: { cellWidth: 50, halign: 'left' }, // Nome
-        2: { cellWidth: 28, halign: 'center' }, // CPF
-        3: { cellWidth: 33, halign: 'left' }, // Categoria
-        4: { cellWidth: 32, halign: 'center' }, // Protocolo
-        5: { cellWidth: 45, halign: 'left' }, // Acompanhante
-        6: { cellWidth: 45, halign: 'left' }, // Assinatura
+        1: { cellWidth: 80 },                  // Nome
+        2: { cellWidth: 28, halign: 'center' }, // Protocolo
+        3: { cellWidth: 60 },                  // Acompanhante
+        4: { cellWidth: 'auto' },              // Assinatura (ocupa o resto)
       },
-      // Garantir que a tabela não ultrapasse as margens
-      tableWidth: availableWidth,
-    })
+    });
   }
 
-  // Rodapé com créditos DDV Technology
-  const pageCount = doc.getNumberOfPages()
+  // Rodapé
+  const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i)
-    const pageHeight = doc.internal.pageSize.height
-    const pageWidth = doc.internal.pageSize.width
+    doc.setPage(i);
+    const footerY = pageHeight - margin + 10;
     
-    // Linha separadora (respeitando margens)
-    doc.setDrawColor(200, 200, 200)
-    doc.line(marginLeft, pageHeight - 12, pageWidth - marginRight, pageHeight - 12)
-    
-    // Créditos
-    doc.setFontSize(7)
-    doc.setTextColor(128, 128, 128)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Sistema desenvolvido por DDV Technology', pageWidth / 2, pageHeight - 6, { align: 'center' })
-    doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 2, { align: 'center' })
-  }
+    // Linha
+    doc.setDrawColor(200);
+    doc.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
 
-  // Abre o diálogo de impressão
-  doc.autoPrint()
-  window.open(doc.output('bloburl'), '_blank')
+    // Texto do rodapé
+    doc.setFontSize(8);
+    doc.setTextColor(128);
+    
+    const textoFooter = `Total: ${confirmados.length} participantes | Gerado em: ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
+    doc.text(textoFooter, margin, footerY);
+    
+    const textoPagina = `Página ${i} de ${pageCount}`;
+    doc.text(textoPagina, pageWidth - margin, footerY, { align: 'right' });
+    
+    const textoCredito = 'Sistema DDV Technology';
+    doc.text(textoCredito, pageWidth / 2, footerY, { align: 'center' });
+  }
+  
+  // Abre a janela de impressão
+  doc.autoPrint();
+  window.open(doc.output('bloburl'), '_blank');
 }
+
 

@@ -303,7 +303,7 @@ export function printListaPresenca(
       String(index + 1),
       insc.nome_completo.toUpperCase(),
       insc.protocolo,
-      insc.nome_acompanhante || '-',
+      insc.nome_acompanhante || '-'.toUpperCase(),
       '', // Espaço para assinatura
     ]);
 

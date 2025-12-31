@@ -270,7 +270,7 @@ export function printListaPresenca(
   const margin = 15;
   const availableWidth = pageWidth - (margin * 2);
 
-  const dataFormatada = diaSelecionado ? formatDate(diaSelecionado, 'dd/MM/yyyy') : '';
+  const dataFormatada = diaSelecionado ? formatDate(diaSelecionado) : '';
   const titulo = diaSelecionado 
     ? `Lista de Presença - ${dataFormatada}` 
     : 'Lista de Presença';
